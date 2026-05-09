@@ -108,7 +108,10 @@
 						</template>
 						{{ t('forms', 'Technical name') }}
 					</NcActionInput>
-					<NcActionButton closeAfterClick @click="onClone">
+					<NcActionButton
+						v-if="!hideHeader"
+						closeAfterClick
+						@click="onClone">
 						<template #icon>
 							<IconContentCopy :size="20" />
 						</template>
