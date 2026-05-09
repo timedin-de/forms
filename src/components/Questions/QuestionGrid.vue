@@ -10,6 +10,7 @@
 		:warning-invalid="answerType.warningInvalid"
 		:content-valid="contentValid"
 		:shift-drag-handle="shiftDragHandle"
+		:hide-header="hideHeader"
 		v-on="commonListeners">
 		<template v-if="readOnly">
 			<fieldset :name="name || undefined" :aria-labelledby="titleId">

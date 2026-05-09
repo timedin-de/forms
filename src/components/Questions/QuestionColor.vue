@@ -8,6 +8,7 @@
 		v-bind="questionProps"
 		:title-placeholder="answerType.titlePlaceholder"
 		:warning-invalid="answerType.warningInvalid"
+		:hide-header="hideHeader"
 		v-on="commonListeners">
 		<div class="question__content">
 			<NcColorPicker

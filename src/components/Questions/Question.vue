@@ -13,7 +13,7 @@
 		<!-- Drag handle -->
 		<!-- TODO: implement arrow key mapping to reorder question -->
 		<div
-			v-if="!readOnly"
+			v-if="!readOnly && !hideHeader"
 			class="question__drag-handle"
 			:class="{
 				'question__drag-handle--shiftup': shiftDragHandle,
@@ -44,7 +44,7 @@
 		</div>
 
 		<!-- Header -->
-		<div class="question__header">
+		<div v-if="!hideHeader || !readOnly" class="question__header">
 			<div class="question__header__title">
 				<input
 					v-if="!readOnly"
@@ -123,7 +123,7 @@
 				</NcActions>
 			</div>
 			<div
-				v-if="hasDescription || !readOnly"
+				v-if="!hideHeader && (hasDescription || !readOnly)"
 				class="question__header__description">
 				<textarea
 					v-if="!readOnly"
@@ -256,6 +256,11 @@ export default {
 		},
 
 		canMoveUp: {
+			type: Boolean,
+			default: false,
+		},
+
+		hideHeader: {
 			type: Boolean,
 			default: false,
 		},
