@@ -160,6 +160,14 @@ export default defineComponent({
 			type: Boolean,
 			default: false,
 		},
+
+		/**
+		 * Whether this question is a trigger for a conditional
+		 */
+		isTrigger: {
+			type: Boolean,
+			default: false,
+		},
 	},
 
 	components: {

@@ -894,8 +894,15 @@ class FormsService {
 			return true;
 		}
 
+		$allowed = [];
+		if($questionType === Constants::ANSWER_TYPE_CONDITIONAL){
+			// Get triggertype if is conditional
+			$questionType = $extraSettings['triggerType'] ?? null;
+			$allowed = Constants::EXTRA_SETTINGS_CONDITIONAL;
+		}
+
 		// Ensure only allowed keys are set
-		$allowed = match ($questionType) {
+		$allowed += match ($questionType) {
 			Constants::ANSWER_TYPE_DROPDOWN => Constants::EXTRA_SETTINGS_DROPDOWN,
 			Constants::ANSWER_TYPE_MULTIPLE, Constants::ANSWER_TYPE_MULTIPLEUNIQUE => Constants::EXTRA_SETTINGS_MULTIPLE,
 			Constants::ANSWER_TYPE_SHORT => Constants::EXTRA_SETTINGS_SHORT,
@@ -905,7 +912,6 @@ class FormsService {
 			Constants::ANSWER_TYPE_RANKING => Constants::EXTRA_SETTINGS_RANKING,
 			Constants::ANSWER_TYPE_TIME => Constants::EXTRA_SETTINGS_TIME,
 			Constants::ANSWER_TYPE_LINEARSCALE => Constants::EXTRA_SETTINGS_LINEARSCALE,
-			Constants::ANSWER_TYPE_CONDITIONAL => Constants::EXTRA_SETTINGS_CONDITIONAL,
 			default => [],
 		};
 		// Number of keys in extraSettings but not in allowed (but not the other way round)
@@ -1043,6 +1049,18 @@ class FormsService {
 					return false;
 				}
 			}
+
+			$diff = array_diff(array_keys($extraSettings), array_keys(Constants::EXTRA_SETTINGS_CONDITIONAL));
+			// Handle options of triggerQuestion
+			if (count($diff) > 0 && isset($triggerType) && $triggerType !== '') {
+				$diffDict = [];
+				foreach ($diff as $k) {
+					$diffDict[$k] = $extraSettings[$k];
+				}
+				$valid = self::areExtraSettingsValid($diffDict, $triggerType);
+				return $valid;
+			}
+
 		}
 		return true;
 	}
