@@ -11,6 +11,7 @@
 		:contentValid="contentValid"
 		:shiftDragHandle="shiftDragHandle"
 		:errorMessage="errorMessage"
+		:hide-header="hideHeader"
 		v-on="commonListeners">
 		<template #actions>
 			<NcActionCheckbox
