@@ -100,7 +100,8 @@
 					:isTriggerQuestion="true"
 					:values="triggerValues"
 					@update:values="onTriggerValueChange"
-					@update:options="onOptionsChange" />
+					@update:options="onOptionsChange"
+					@delete="clearTriggerType" />
 
 				<!-- Branch Management (Edit Mode) -->
 				<div v-if="!readOnly" class="branches-editor">
@@ -197,6 +198,12 @@
 										"
 										@delete="
 											deleteSubQuestion(
+												branch.id,
+												subQuestion.id,
+											)
+										"
+										@clone="
+											cloneSubQuestion(
 												branch.id,
 												subQuestion.id,
 											)
@@ -762,6 +769,35 @@ export default {
 						parentQuestionId: this.id,
 						branchId,
 					},
+				)
+				const newQuestion = OcsResponse2Data(response)
+
+				const branchIndex = this.branches.findIndex((b) => b.id === branchId)
+				const newBranches = [...this.branches]
+				newBranches[branchIndex] = {
+					...branch,
+					subQuestions: [...(branch.subQuestions || []), newQuestion],
+				}
+				this.onExtraSettingsChange({ branches: newBranches })
+			} catch (error) {
+				logger.error('Error adding subquestion', { error })
+				showError(t('forms', 'Error adding subquestion'))
+			}
+		},
+
+		async cloneSubQuestion(branchId, questionId) {
+			const branch = this.branches.find((b) => b.id === branchId)
+			if (!branch) return
+
+			try {
+				const response = await axios.post(
+					generateOcsUrl(
+						'apps/forms/api/v3/forms/{id}/questions?fromId={questionId}',
+						{
+							id: this.formId,
+							questionId,
+						},
+					),
 				)
 				const newQuestion = OcsResponse2Data(response)
 
