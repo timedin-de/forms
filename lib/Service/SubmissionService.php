@@ -793,7 +793,7 @@ class SubmissionService {
 
 				// Check if required subquestions have an answer
 				if ($subQuestion['isRequired'] ?? false) {
-					if (!$subQuestionAnswered || empty($subQuestionAnswers[$subQuestionId])) {
+					if (!$subQuestionAnswered || !array_filter($subQuestionAnswers[$subQuestionId], fn ($v) => $v !== '' && $v !== null)) {
 						throw new \InvalidArgumentException(sprintf('Subquestion "%s" in conditional question "%s" is required.', $subQuestion['text'] ?? 'Unknown', $question['text']));
 					}
 				}
