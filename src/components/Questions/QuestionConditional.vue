@@ -6,17 +6,17 @@
 <template>
 	<Question
 		v-bind="questionProps"
-		:title-placeholder="answerType.titlePlaceholder"
-		:warning-invalid="answerType.warningInvalid"
-		:content-valid="contentValid"
-		:shift-drag-handle="false"
+		:titlePlaceholder="answerType.titlePlaceholder"
+		:warningInvalid="answerType.warningInvalid"
+		:contentValid="contentValid"
+		:shiftDragHandle="false"
 		v-on="commonListeners">
 		<template #actions>
 			<!-- Trigger type selection in menu -->
 			<NcActionButton
 				v-for="tt in triggerTypesList"
 				:key="tt.type"
-				:close-after-click="true"
+				:closeAfterClick="true"
 				@click="setTriggerType(tt.type)">
 				<template #icon>
 					<component :is="tt.icon" :size="20" />
@@ -88,16 +88,16 @@
 					v-if="triggerComponentName"
 					:id="id"
 					ref="triggerQuestion"
-					:form-id="formId"
+					:formId="formId"
 					text=""
 					description=""
-					:is-required="false"
+					:isRequired="false"
 					:index="0"
 					:options="options"
-					:extra-settings="triggerExtraSettings"
-					:max-string-lengths="maxStringLengths"
-					:answer-type="triggerAnswerTypeConfig"
-					:read-only="readOnly"
+					:extraSettings="triggerExtraSettings"
+					:maxStringLengths="maxStringLengths"
+					:answerType="triggerAnswerTypeConfig"
+					:readOnly="readOnly"
 					:values="triggerValues"
 					@update:values="onTriggerValueChange"
 					@update:options="onOptionsChange" />
@@ -139,7 +139,7 @@
 						<div class="branch__conditions">
 							<BranchConditionEditor
 								:branch="branch"
-								:trigger-type="triggerType"
+								:triggerType="triggerType"
 								:options="options"
 								@update:branch="
 									onBranchUpdate(branchIndex, $event)
@@ -162,10 +162,10 @@
 											)
 										"
 										v-bind="subQuestion"
-										:form-id="formId"
+										:formId="formId"
 										:index="subIndex + 1"
-										:max-string-lengths="maxStringLengths"
-										:answer-type="
+										:maxStringLengths="maxStringLengths"
+										:answerType="
 											getSubQuestionAnswerTypeConfig(
 												subQuestion.type,
 											)
@@ -211,7 +211,7 @@
 								<NcActionButton
 									v-for="sqType in subQuestionTypesList"
 									:key="sqType.type"
-									:close-after-click="true"
+									:closeAfterClick="true"
 									@click="addSubQuestion(branch.id, sqType.type)">
 									<template #icon>
 										<component :is="sqType.icon" :size="20" />
@@ -239,13 +239,13 @@
 						:key="subQuestion.id"
 						ref="subQuestions"
 						v-bind="subQuestion"
-						:form-id="formId"
+						:formId="formId"
 						:index="subIndex + 1"
-						:max-string-lengths="maxStringLengths"
-						:answer-type="
+						:maxStringLengths="maxStringLengths"
+						:answerType="
 							getSubQuestionAnswerTypeConfig(subQuestion.type)
 						"
-						:read-only="true"
+						:readOnly="true"
 						:values="getSubQuestionValues(subQuestion.id)"
 						@update:values="
 							onSubQuestionValueChange(subQuestion.id, $event)
@@ -339,6 +339,7 @@ export default {
 	},
 
 	mixins: [QuestionMixin],
+	emits: ['update:values', 'update:options'],
 
 	data() {
 		return {
