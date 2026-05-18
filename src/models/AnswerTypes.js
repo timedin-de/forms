@@ -267,8 +267,8 @@ export default {
 	},
 
 	conditional: {
-		component: QuestionConditional,
-		icon: IconSourceBranch,
+		component: markRaw(QuestionConditional),
+		icon: markRaw(IconSourceBranch),
 		label: t('forms', 'Conditional'),
 		predefined: true,
 		validate: (question) => {

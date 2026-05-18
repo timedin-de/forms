@@ -14,22 +14,22 @@
 				<!-- Single select for radio/dropdown -->
 				<NcSelect
 					v-if="isSingleSelect"
-					:model-value="selectedOptions"
+					:modelValue="selectedOptions"
 					:options="optionsList"
 					:placeholder="t('forms', 'Select an option')"
 					:multiple="false"
 					label="text"
-					@update:model-value="onSingleOptionSelect" />
+					@update:modelValue="onSingleOptionSelect" />
 
 				<!-- Multi select for checkboxes -->
 				<NcSelect
 					v-else
-					:model-value="selectedOptions"
+					:modelValue="selectedOptions"
 					:options="optionsList"
 					:placeholder="t('forms', 'Select options combination')"
 					:multiple="true"
 					label="text"
-					@update:model-value="onMultipleOptionsSelect" />
+					@update:modelValue="onMultipleOptionsSelect" />
 			</div>
 		</template>
 
@@ -120,7 +120,7 @@
 		<template v-else-if="triggerType === 'file'">
 			<div class="condition-row">
 				<NcCheckboxRadioSwitch
-					:model-value="fileUploadedCondition"
+					:modelValue="fileUploadedCondition"
 					@update:checked="onFileConditionChange">
 					{{ t('forms', 'File is uploaded') }}
 				</NcCheckboxRadioSwitch>
