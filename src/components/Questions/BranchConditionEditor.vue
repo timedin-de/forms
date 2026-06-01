@@ -90,14 +90,14 @@
 							v-model.number="conditionMin"
 							type="number"
 							:placeholder="t('forms', 'Min')"
-							class="condition-range-input" />
+							class="condition-value-input" />
 					</template>
 					<template v-else-if="conditionType === 'value_max'">
 						<NcTextField
 							v-model.number="conditionMax"
 							type="number"
 							:placeholder="t('forms', 'Max')"
-							class="condition-range-input" />
+							class="condition-value-input" />
 					</template>
 				</template>
 				<template v-else-if="triggerType === 'color'">
