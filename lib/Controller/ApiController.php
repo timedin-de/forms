@@ -44,6 +44,7 @@ use OCP\AppFramework\OCS\OCSException;
 use OCP\AppFramework\OCS\OCSForbiddenException;
 use OCP\AppFramework\OCS\OCSNotFoundException;
 use OCP\AppFramework\OCSController;
+use OCP\App\IAppManager;
 use OCP\BackgroundJob\IJobList;
 use OCP\Files\Folder;
 use OCP\Files\IMimeTypeDetector;
@@ -86,6 +87,7 @@ class ApiController extends OCSController {
 		private readonly SubmissionService $submissionService,
 		private readonly IL10N $l10n,
 		private readonly LoggerInterface $logger,
+		private readonly IAppManager $appManager,
 		private readonly IUserManager $userManager,
 		private readonly IRootFolder $rootFolder,
 		private readonly UploadedFileMapper $uploadedFileMapper,
@@ -286,7 +288,8 @@ class ApiController extends OCSController {
 	 * Read all information to edit a Form (form, questions, options, except submissions/answers)
 	 *
 	 * @param int $formId Id of the form
-	 * @return DataResponse<Http::STATUS_OK, FormsForm, array{}>
+	 * @param ?bool $download if the form should be downloaded
+	 * @return DataResponse<Http::STATUS_OK, FormsForm, array{}>|DataDownloadResponse<Http::STATUS_OK, 'application/json', array{}>
 	 * @throws OCSBadRequestException Could not find form
 	 * @throws OCSForbiddenException User has no permissions to get this form
 	 *
@@ -296,8 +299,37 @@ class ApiController extends OCSController {
 	#[NoAdminRequired()]
 	#[BruteForceProtection(action: 'form')]
 	#[ApiRoute(verb: 'GET', url: '/api/v3/forms/{formId}')]
-	public function getForm(int $formId): DataResponse {
+	public function getForm(int $formId, ?bool $download): DataResponse|DataDownloadResponse {
 		$form = $this->formsService->getFormIfAllowed($formId, Constants::PERMISSION_SUBMIT);
+
+		if ($download) {
+			$formData = $this->formsService->getPublicForm($form);
+			unset($formData['hash']);
+			unset($formData['created']);
+			unset($formData['lastUpdated']);
+			unset($formData['lockedBy']);
+			unset($formData['lockedUntil']);
+			unset($formData['permissions']);
+			unset($formData['canSubmit']);
+			unset($formData['isMaxSubmissionsReached']);
+			unset($formData['submissionCount']);
+			unset($formData['filePath']);
+			unset($formData['state']);
+			unset($formData['id']);
+
+			foreach($formData['questions'] as &$question) {
+				unset($question['formId']);
+				unset($question['accept']);
+				foreach($question['options'] as &$option) {
+					unset($option['questionId']);
+					unset($option['id']);
+				}
+			}
+
+			$downloadFile = ["form"=>$formData,"appVersion"=>$this->appManager->getAppVersion('forms')];
+			return new DataDownloadResponse(
+				json_encode($downloadFile), $form->getTitle(), 'application/json');
+		}
 
 		return new DataResponse($this->formsService->getForm($form));
 	}
