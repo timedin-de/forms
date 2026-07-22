@@ -100,9 +100,14 @@
 					<NcIconSvgWrapper :svg="FormsIcon" :size="64" />
 				</template>
 				<template v-if="canCreateForms" #action>
-					<NcButton variant="primary" @click="onNewForm">
-						{{ t('forms', 'Create a form') }}
-					</NcButton>
+					<div class="form-buttons">
+						<NcButton variant="primary" @click="onNewForm">
+							{{ t('forms', 'Create a form') }}
+						</NcButton>
+						<NcButton variant="secondary" @click="onUploadForm">
+							{{ t('forms', 'Import a form') }}
+						</NcButton>
+					</div>
 				</template>
 			</NcEmptyContent>
 
@@ -695,6 +700,12 @@ export default {
 </script>
 
 <style scoped lang="scss">
+.form-buttons {
+	display: flex;
+	justify-content: flex-end;
+	gap: 6px;
+}
+
 .forms-navigation-footer {
 	display: flex;
 	flex-direction: column;
