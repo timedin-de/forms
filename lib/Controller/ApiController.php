@@ -156,7 +156,13 @@ class ApiController extends OCSController {
 	 * @throws OCSForbiddenException The user is not allowed to create forms
 	 * @throws OCSBadRequestException Cannot use both fromId and import parameters
 	 * @throws OCSBadRequestException Invalid form data: missing questions
+	 * @throws OCSBadRequestException Invalid form data: unknown properties
 	 * @throws OCSBadRequestException Invalid question data: missing id
+	 * @throws OCSBadRequestException Invalid question data: unknown properties
+	 * @throws OCSBadRequestException Invalid question data: invalid type
+	 * @throws OCSBadRequestException Invalid question data: datetime type no longer supported
+	 * @throws OCSBadRequestException Invalid question data: invalid extraSettings
+	 * @throws OCSBadRequestException Invalid option data: unknown properties
 	 *
 	 * 201: the created form
 	 */
@@ -203,6 +209,19 @@ class ApiController extends OCSController {
 				$questions = $formData['questions'];
 				$oldConfirmationEmailQuestionId = $formData['confirmationEmailQuestionId'] ?? null;
 				unset($formData['questions']);
+
+				// Validate form data whitelist
+				$allowedFormProperties = [
+					'title', 'description', 'access', 'expires', 'isAnonymous',
+					'submitMultiple', 'allowEditSubmissions', 'showExpiration',
+					'submissionMessage', 'maxSubmissions', 'confirmationEmailEnabled',
+					'confirmationEmailSubject', 'confirmationEmailBody', 'confirmationEmailQuestionId',
+					'allowComments',
+				];
+				$invalidKeys = array_diff(array_keys($formData), $allowedFormProperties);
+				if (!empty($invalidKeys)) {
+					throw new OCSBadRequestException('Invalid form data: unknown properties: ' . implode(', ', $invalidKeys));
+				}
 			} else {
 				$oldForm = $this->formsService->getFormIfAllowed($fromId, Constants::PERMISSION_EDIT);
 
@@ -246,6 +265,32 @@ class ApiController extends OCSController {
 					if (!isset($oldQuestion['id'])) {
 						throw new OCSBadRequestException('Invalid question data: missing id');
 					}
+
+					// Validate question property whitelist
+					$allowedQuestionProperties = ['id', 'order', 'type', 'isRequired', 'text', 'name', 'description', 'extraSettings', 'options'];
+					$invalidQuestionKeys = array_diff(array_keys($oldQuestion), $allowedQuestionProperties);
+					if (!empty($invalidQuestionKeys)) {
+						throw new OCSBadRequestException('Invalid question data: unknown properties: ' . implode(', ', $invalidQuestionKeys));
+					}
+
+					// Validate question type
+					$type = $oldQuestion['type'] ?? null;
+					if ($type === null || array_search($type, Constants::ANSWER_TYPES) === false) {
+						throw new OCSBadRequestException('Invalid question data: invalid type');
+					}
+
+					// Block datetime questions
+					if ($type === 'datetime') {
+						throw new OCSBadRequestException('Invalid question data: datetime type no longer supported');
+					}
+
+					// Validate extraSettings
+					if (!empty($oldQuestion['extraSettings'] ?? [])) {
+						if (!$this->formsService->areExtraSettingsValid($oldQuestion['extraSettings'], $type)) {
+							throw new OCSBadRequestException('Invalid question data: invalid extraSettings');
+						}
+					}
+
 					$questionData = $oldQuestion;
 					$oldQuestionId = $oldQuestion['id'];
 					$options = $oldQuestion['options'] ?? [];
@@ -270,6 +315,15 @@ class ApiController extends OCSController {
 
 				foreach ($options as $oldOption) {
 					$optionData = $import ? $oldOption : $oldOption->read();
+
+					if ($import) {
+						// Validate option property whitelist
+						$allowedOptionProperties = ['text', 'order', 'optionType'];
+						$invalidOptionKeys = array_diff(array_keys($optionData), $allowedOptionProperties);
+						if (!empty($invalidOptionKeys)) {
+							throw new OCSBadRequestException('Invalid option data: unknown properties: ' . implode(', ', $invalidOptionKeys));
+						}
+					}
 
 					unset($optionData['id']);
 					$optionData['questionId'] = $newQuestion->getId();
